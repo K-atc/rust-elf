@@ -1,5 +1,4 @@
 use core::fmt;
-use crate::try;
 use cstr_core::CString;
 
 /// Length of ELF file header platform-independent identification fields
@@ -440,14 +439,14 @@ impl fmt::Debug for ProgFlag {
 impl fmt::Display for ProgFlag {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if (self.0 & PF_R.0) != 0 {
-            try!(write!(f, "R"));
+            write!(f, "R")?;
         } else {
-            try!(write!(f, " "));
+            write!(f, " ")?;
         }
         if (self.0 & PF_W.0) != 0 {
-            try!(write!(f, "W"));
+            write!(f, "W")?;
         } else {
-            try!(write!(f, " "));
+            write!(f, " ")?;
         }
         if (self.0 & PF_X.0) != 0 {
             write!(f, "E")
@@ -705,7 +704,7 @@ impl fmt::Display for SectionHeader {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct SymbolType(pub u8);
 /// Unspecified symbol type
 pub const STT_NOTYPE: SymbolType = SymbolType(0);
@@ -741,7 +740,7 @@ impl fmt::Display for SymbolType {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct SymbolBind(pub u8);
 /// Local symbol
 pub const STB_LOCAL: SymbolBind = SymbolBind(0);
@@ -765,7 +764,7 @@ impl fmt::Display for SymbolBind {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct SymbolVis(pub u8);
 /// Default symbol visibility
 pub const STV_DEFAULT: SymbolVis = SymbolVis(0);
@@ -789,7 +788,7 @@ impl fmt::Display for SymbolVis {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Symbol {
     /// Symbol name
     pub name: CString,

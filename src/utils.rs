@@ -1,66 +1,60 @@
 use cstr_core::{CString, CStr};
 
-#[macro_export]
-macro_rules! try {
-    ($expr:expr) => {{
-        $expr?
-    }}
-}
+use super::io;
+#[allow(unused_imports)]
+use io::byteorder::ByteOrder;
+#[allow(unused_imports)]
+use io::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
-#[macro_export]
-macro_rules! read_u16 {
-    ($elf:ident, $io:ident) => {{
-        #[allow(unused_imports)]
-        use io::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-        match $elf.ehdr.data {
-            types::ELFDATA2LSB => $io.read_u16::<LittleEndian>(),
-            types::ELFDATA2MSB => $io.read_u16::<BigEndian>(),
-            types::ELFDATANONE => {
-                panic!("Unable to resolve file endianness");
-            }
-            _ => {
-                panic!("Unable to resolve file endianness");
-            }
+use crate::types;
+use crate::types::Data;
+use core::result::Result;
+
+pub(crate) fn read_u16<T: io::Read>(data: &Data, cursor: &mut T) -> Result<u16, io::Error> {
+    let mut buf = [0; 2];
+    cursor.read(&mut buf)?;
+    match *data {
+        types::ELFDATA2LSB => Ok(LittleEndian::read_u16(&buf)),
+        types::ELFDATA2MSB => Ok(BigEndian::read_u16(&buf)),
+        types::ELFDATANONE => {
+            panic!("Unable to resolve file endianness");
         }
-    }};
-}
-
-#[macro_export]
-macro_rules! read_u32 {
-    ($elf:ident, $io:ident) => {{
-        #[allow(unused_imports)]
-        use io::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-        match $elf.ehdr.data {
-            types::ELFDATA2LSB => $io.read_u32::<LittleEndian>(),
-            types::ELFDATA2MSB => $io.read_u32::<BigEndian>(),
-            types::ELFDATANONE => {
-                panic!("Unable to resolve file endianness");
-            }
-            _ => {
-                panic!("Unable to resolve file endianness");
-            }
+        _ => {
+            panic!("Unable to resolve file endianness");
         }
-    }};
+    }
 }
 
-#[macro_export]
-macro_rules! read_u64 {
-    ($elf:ident, $io:ident) => {{
-        #[allow(unused_imports)]
-        use io::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-        match $elf.ehdr.data {
-            types::ELFDATA2LSB => $io.read_u64::<LittleEndian>(),
-            types::ELFDATA2MSB => $io.read_u64::<BigEndian>(),
-            types::ELFDATANONE => {
-                panic!("Unable to resolve file endianness");
-            }
-            _ => {
-                panic!("Unable to resolve file endianness");
-            }
+pub(crate) fn read_u32<T: io::Read>(data: &Data, cursor: &mut T) -> Result<u32, io::Error> {
+    let mut buf = [0; 4];
+    cursor.read(&mut buf)?;
+    match *data {
+        types::ELFDATA2LSB => Ok(LittleEndian::read_u32(&buf)),
+        types::ELFDATA2MSB => Ok(BigEndian::read_u32(&buf)),
+        types::ELFDATANONE => {
+            panic!("Unable to resolve file endianness");
         }
-    }};
+        _ => {
+            panic!("Unable to resolve file endianness");
+        }
+    }
 }
 
-pub fn get_string(data: &[u8], start: usize) -> CString {
+pub(crate) fn read_u64<T: io::Read>(data: &Data, cursor: &mut T) -> Result<u64, io::Error> {
+    let mut buf = [0; 8];
+    cursor.read(&mut buf)?;
+    match *data {
+        types::ELFDATA2LSB => Ok(LittleEndian::read_u64(&buf)),
+        types::ELFDATA2MSB => Ok(BigEndian::read_u64(&buf)),
+        types::ELFDATANONE => {
+            panic!("Unable to resolve file endianness");
+        }
+        _ => {
+            panic!("Unable to resolve file endianness");
+        }
+    }
+}
+
+pub(crate) fn get_string(data: &[u8], start: usize) -> CString {
     CString::from(unsafe { CStr::from_bytes_with_nul_unchecked(&data[start..data.len()])})
 }

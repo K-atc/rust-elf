@@ -19,5 +19,4 @@ std = []
 
 [dependencies]
 acid_io = { git = "https://github.com/K-atc/acid_io.git", version = "0.1.0", default-features = false, features = ["byteorder"] }
-#acid_io = { version = "0.1.0", default-features = false, features = ["byteorder"] }
 cstr_core = "0.2.2"
