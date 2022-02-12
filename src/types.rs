@@ -1,6 +1,5 @@
 use core::fmt;
-use cstr_core::CString;
-
+use alloc::string::String;
 /// Length of ELF file header platform-independent identification fields
 pub const EI_NIDENT: usize = 16;
 /// ELF magic number byte 1
@@ -675,7 +674,7 @@ impl fmt::Display for SectionFlag {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SectionHeader {
     /// Section Name
-    pub name: CString,
+    pub name: String,
     /// Section Type
     pub shtype: SectionType,
     /// Section Flags
@@ -791,7 +790,7 @@ impl fmt::Display for SymbolVis {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Symbol {
     /// Symbol name
-    pub name: CString,
+    pub name: String, // NOTE: CString を含んだ Value は hashbrown::HashMap の RawIterRange::new() 内の ctrl のアサーションが落ちる
     /// Symbol value
     pub value: u64,
     /// Symbol size

@@ -1,5 +1,4 @@
-use cstr_core::{CString, NulError};
-use alloc::string::String;
+use alloc::string::{String, FromUtf8Error};
 
 use super::io;
 use super::byteorder::ByteOrder;
@@ -55,7 +54,7 @@ pub(crate) fn read_u64<T: io::Read>(data: &Data, cursor: &mut T) -> Result<u64, 
     }
 }
 
-pub(crate) fn get_string(data: &[u8], start: usize) -> Result<CString, NulError> {
+pub(crate) fn get_string(data: &[u8], start: usize) -> Result<String, FromUtf8Error> {
     let mut end: usize = 0;
     for i in start..data.len() {
         if data[i] == 0u8 {
@@ -67,5 +66,5 @@ pub(crate) fn get_string(data: &[u8], start: usize) -> Result<CString, NulError>
     for i in start..end {
         rtn.push(data[i] as char);
     }
-    CString::new(rtn.as_bytes())
+    Ok(rtn)
 }

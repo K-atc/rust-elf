@@ -1,7 +1,7 @@
 use core::fmt;
 use alloc::vec::Vec;
 use alloc::vec;
-use cstr_core::CString;
+use alloc::string::{String, FromUtf8Error};
 
 use super::io;
 #[allow(unused_imports)]
@@ -50,6 +50,12 @@ impl core::convert::From<cstr_core::NulError> for ParseError {
     }
 }
 
+impl core::convert::From<FromUtf8Error> for ParseError {
+    fn from(e: FromUtf8Error) -> Self {
+        ParseError::InvalidString(e)
+    }
+}
+
 #[derive(Debug)]
 pub enum ParseError {
     IoError(io::Error),
@@ -57,6 +63,7 @@ pub enum ParseError {
     InvalidIdent,
     InvalidFormat,
     NotImplemented,
+    InvalidString(FromUtf8Error),
     CStringError(cstr_core::NulError),
 }
 
@@ -193,7 +200,7 @@ impl ElfFile {
 
             elf_f.sections.push(Section {
                 shdr: types::SectionHeader {
-                    name: CString::new("")?,
+                    name: String::new(),
                     shtype: shtype,
                     flags: flags,
                     addr: addr,
@@ -302,10 +309,10 @@ impl ElfFile {
         Ok(())
     }
 
-    pub fn get_section(&self, name: &CString) -> Option<&Section> {
+    pub fn get_section(&self, name: &str) -> Option<&Section> {
         self.sections
             .iter()
-            .find(|section| &section.shdr.name == name)
+            .find(|section| section.shdr.name.as_str() == name)
     }
 
     pub fn new() -> ElfFile {
