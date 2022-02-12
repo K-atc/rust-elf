@@ -1,10 +1,10 @@
-use cstr_core::{CString, CStr};
+use cstr_core::{CString, NulError};
+use alloc::string::String;
 
 use super::io;
+use super::byteorder::ByteOrder;
 #[allow(unused_imports)]
-use io::byteorder::ByteOrder;
-#[allow(unused_imports)]
-use io::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use super::byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
 use crate::types;
 use crate::types::Data;
@@ -55,6 +55,17 @@ pub(crate) fn read_u64<T: io::Read>(data: &Data, cursor: &mut T) -> Result<u64, 
     }
 }
 
-pub(crate) fn get_string(data: &[u8], start: usize) -> CString {
-    CString::from(unsafe { CStr::from_bytes_with_nul_unchecked(&data[start..data.len()])})
+pub(crate) fn get_string(data: &[u8], start: usize) -> Result<CString, NulError> {
+    let mut end: usize = 0;
+    for i in start..data.len() {
+        if data[i] == 0u8 {
+            end = i;
+            break;
+        }
+    }
+    let mut rtn = String::with_capacity(end - start);
+    for i in start..end {
+        rtn.push(data[i] as char);
+    }
+    CString::new(rtn.as_bytes())
 }

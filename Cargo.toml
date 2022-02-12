@@ -15,8 +15,12 @@ name = "elf"
 
 [features]
 default = []
-std = []
+std = ["clap", "byteorder"]
 
 [dependencies]
 acid_io = { git = "https://github.com/K-atc/acid_io.git", version = "0.1.0", default-features = false, features = ["byteorder"] }
 cstr_core = "0.2.2"
+
+clap = { version = "3.0.14", optional = true }
+byteorder = { version = "1.4.3", optional = true }
+

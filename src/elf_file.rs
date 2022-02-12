@@ -6,8 +6,6 @@ use cstr_core::CString;
 use super::io;
 #[allow(unused_imports)]
 use super::io::{Read, Seek};
-#[allow(unused_imports)]
-use io::byteorder::ByteOrder;
 
 use crate::utils::*;
 use crate::types;
@@ -219,12 +217,14 @@ impl ElfFile {
 
             let off = elf_f.sections[s_i].shdr.offset;
             let size = elf_f.sections[s_i].shdr.size;
-            io_file.seek(io::SeekFrom::Start(off))?;
-            let mut data = vec![0; size as usize];
-            if elf_f.sections[s_i].shdr.shtype != types::SHT_NOBITS {
-                io_file.read_exact(&mut data)?;
+            if size > 0 {
+                io_file.seek(io::SeekFrom::Start(off))?;
+                let mut data = vec![0; size as usize];
+                if elf_f.sections[s_i].shdr.shtype != types::SHT_NOBITS {
+                    io_file.read_exact(&mut data)?;
+                }
+                elf_f.sections[s_i].data = data;
             }
-            elf_f.sections[s_i].data = data;
 
             s_i += 1;
         }
@@ -239,7 +239,7 @@ impl ElfFile {
             elf_f.sections[s_i].shdr.name = utils::get_string(
                 &elf_f.sections[shstrndx as usize].data,
                 name_idxs[s_i] as usize
-            );
+            )?;
 
             s_i += 1;
         }
@@ -255,6 +255,8 @@ impl ElfFile {
             while (io_section.position() as usize) < section.data.len() {
                 self.parse_symbol(&mut io_section, &mut symbols, link)?;
             }
+        } else {
+            unreachable!()
         }
         Ok(symbols)
     }
@@ -289,7 +291,7 @@ impl ElfFile {
         }
 
         symbols.push(types::Symbol {
-            name: utils::get_string(link, name as usize),
+            name: utils::get_string(link, name as usize)?,
             value: value,
             size: size,
             shndx: shndx,

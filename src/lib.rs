@@ -10,6 +10,10 @@ pub use elf_file::Section;
 
 extern crate alloc;
 extern crate cstr_core;
+#[cfg(feature = "std")]
+extern crate std;
+#[cfg(feature = "std")]
+extern crate byteorder;
 
 #[cfg(not(feature = "std"))]
 extern crate acid_io;
@@ -17,3 +21,6 @@ extern crate acid_io;
 use acid_io as io;
 #[cfg(feature = "std")]
 use std::io;
+
+#[cfg(not(feature = "std"))]
+use io::byteorder;
